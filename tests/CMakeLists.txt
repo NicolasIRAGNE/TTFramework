@@ -4,13 +4,13 @@ FetchContent_Declare(
   URL https://github.com/google/googletest/archive/955c7f837efad184ec63e771c42542d37545eaef.zip
 )
 
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 set(TESTS 
     tests_sqrt.cpp
 )
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(BUILD_GTEST ON)
 set(BUILD_GMOCK OFF)
 

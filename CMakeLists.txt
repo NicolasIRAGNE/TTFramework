@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 
 project(TTFramework LANGUAGES C CXX)
 set(CXX_EXTENSIONS OFF)
-set(CXX_STANDARD 17)
 
 enable_testing()
 
