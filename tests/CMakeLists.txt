@@ -8,7 +8,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 set(TESTS 
-    tests_sqrt.cpp
+    tests_thread_pool.cpp
 )
 
 set(BUILD_GTEST ON)
