@@ -17,7 +17,7 @@
 #include <thread>
 #include <vector>
 
-namespace alyce
+namespace alyce::level4
 {
 
 /**
@@ -70,6 +70,7 @@ public:
     uint32_t ntasks() const;
 
 private:
+    // Add some stuff here
 };
 
 } // namespace alyce

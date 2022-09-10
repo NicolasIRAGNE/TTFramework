@@ -7,18 +7,16 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-set(TESTS 
-    tests_thread_pool.cpp
-)
+include(CTest)
+include(GoogleTest)
 
 set(BUILD_GTEST ON)
 set(BUILD_GMOCK OFF)
 
-add_executable(tests)
-target_sources(tests PRIVATE ${TESTS})
-target_link_libraries(tests gtest_main tt)
+add_subdirectory(level1)
+add_subdirectory(level2)
+add_subdirectory(level4)
 
-include(CTest)
-include(GoogleTest)
 
-gtest_discover_tests(tests)
+
+

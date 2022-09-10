@@ -7,55 +7,58 @@
  * @copyright Copyright Alyce (c) 2022
  */
 
-#include <gtest/gtest.h>
-#include "thread_pool.h"
+#include "level4.h"
 
-TEST(ThreadPool, nthreads_OneThread)
+#include <gtest/gtest.h>
+
+using namespace alyce;
+
+TEST(L4_ThreadPool, nthreads_OneThread)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(1);
     EXPECT_EQ(thread_pool.nthreads(), 1);
 }
 
-TEST(ThreadPool, nthreads_TwoThreads)
+TEST(L4_ThreadPool, nthreads_TwoThreads)
 {
-    alyce::ThreadPool thread_pool(2);
+    level4::ThreadPool thread_pool(2);
     EXPECT_EQ(thread_pool.nthreads(), 2);
 }
 
-TEST(ThreadPool, nthreads_HardwareConcurrency)
+TEST(L4_ThreadPool, nthreads_HardwareConcurrency)
 {
-    alyce::ThreadPool thread_pool;
+    level4::ThreadPool thread_pool;
     EXPECT_EQ(thread_pool.nthreads(), std::thread::hardware_concurrency());
 }
 
-TEST(ThreadPool, enqueue_Simple)
+TEST(L4_ThreadPool, enqueue_Simple)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(1);
     thread_pool.enqueue([]() {});
     EXPECT_EQ(thread_pool.ntasks(), 1);
 }
 
-TEST(ThreadPool, enqueue_Multiple)
+TEST(L4_ThreadPool, enqueue_Multiple)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(1);
     thread_pool.enqueue([]() {});
     thread_pool.enqueue([]() {});
     thread_pool.enqueue([]() {});
     EXPECT_EQ(thread_pool.ntasks(), 3);
 }
 
-TEST(ThreadPool, Basic)
+TEST(L4_ThreadPool, Basic)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(1);
     thread_pool.enqueue([]() {});
     EXPECT_EQ(thread_pool.ntasks(), 1);
     thread_pool.start();
     EXPECT_EQ(thread_pool.ntasks(), 0);
 }
 
-TEST(ThreadPool, Basic_Async)
+TEST(L4_ThreadPool, Basic_Async)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(1);
     thread_pool.enqueue([]()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -67,9 +70,9 @@ TEST(ThreadPool, Basic_Async)
     EXPECT_EQ(thread_pool.ntasks(), 0);
 }
 
-TEST(ThreadPool, Basic_Async_Multiple)
+TEST(L4_ThreadPool, Basic_Async_Multiple)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(1);
     thread_pool.enqueue([]()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -89,9 +92,9 @@ TEST(ThreadPool, Basic_Async_Multiple)
     EXPECT_EQ(thread_pool.ntasks(), 0);
 }
 
-TEST(ThreadPool, Basic_VectorTask_EightThreads)
+TEST(L4_ThreadPool, Basic_VectorTask_EightThreads)
 {
-    alyce::ThreadPool thread_pool(8);
+    level4::ThreadPool thread_pool(8);
     auto v = std::vector<int>(512);
     for (int i = 0; i < 512; i++)
     {
@@ -107,29 +110,9 @@ TEST(ThreadPool, Basic_VectorTask_EightThreads)
     }
 }
 
-TEST(ThreadPool, Basic_VectorTask_OneThread)
+TEST(L4_ThreadPool, Basic_VectorTask_OneThread)
 {
-    alyce::ThreadPool thread_pool(1);
-    auto v = std::vector<int>(512);
-    for (int i = 0; i < 512; i++)
-    {
-        thread_pool.enqueue([&v, i]()
-        {
-            v[i] = i;
-        });
-    }
-    EXPECT_EQ(thread_pool.ntasks(), 512);
-    thread_pool.start();
-    EXPECT_EQ(thread_pool.ntasks(), 0);
-    for (int i = 0; i < 512; i++)
-    {
-        EXPECT_EQ(v[i], i);
-    }
-}
-
-TEST(ThreadPool, Basic_VectorTask_Async_EightThreads)
-{
-    alyce::ThreadPool thread_pool(8);
+    level4::ThreadPool thread_pool(1);
     auto v = std::vector<int>(512);
     for (int i = 0; i < 512; i++)
     {
@@ -139,8 +122,7 @@ TEST(ThreadPool, Basic_VectorTask_Async_EightThreads)
         });
     }
     EXPECT_EQ(thread_pool.ntasks(), 512);
-    thread_pool.start_async();
-    thread_pool.wait();
+    thread_pool.start();
     EXPECT_EQ(thread_pool.ntasks(), 0);
     for (int i = 0; i < 512; i++)
     {
@@ -148,9 +130,9 @@ TEST(ThreadPool, Basic_VectorTask_Async_EightThreads)
     }
 }
 
-TEST(ThreadPool, Basic_VectorTask_Async_OneThread)
+TEST(L4_ThreadPool, Basic_VectorTask_Async_EightThreads)
 {
-    alyce::ThreadPool thread_pool(1);
+    level4::ThreadPool thread_pool(8);
     auto v = std::vector<int>(512);
     for (int i = 0; i < 512; i++)
     {
@@ -169,9 +151,30 @@ TEST(ThreadPool, Basic_VectorTask_Async_OneThread)
     }
 }
 
-TEST(ThreadPool, ExpensiveTask_EightThreads)
+TEST(L4_ThreadPool, Basic_VectorTask_Async_OneThread)
 {
-    alyce::ThreadPool thread_pool(8);
+    level4::ThreadPool thread_pool(1);
+    auto v = std::vector<int>(512);
+    for (int i = 0; i < 512; i++)
+    {
+        thread_pool.enqueue([&v, i]()
+        {
+            v[i] = i;
+        });
+    }
+    EXPECT_EQ(thread_pool.ntasks(), 512);
+    thread_pool.start_async();
+    thread_pool.wait();
+    EXPECT_EQ(thread_pool.ntasks(), 0);
+    for (int i = 0; i < 512; i++)
+    {
+        EXPECT_EQ(v[i], i);
+    }
+}
+
+TEST(L4_ThreadPool, ExpensiveTask_EightThreads)
+{
+    level4::ThreadPool thread_pool(8);
     for (int i = 0; i < 512; i++)
     {
         thread_pool.enqueue([i]()
